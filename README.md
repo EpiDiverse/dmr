@@ -1,9 +1,13 @@
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.09.0-brightgreen.svg)](https://www.nextflow.io/)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
+[![Docker](https://img.shields.io/docker/automated/epidiverse/dmr.svg)](https://hub.docker.com/r/epidiverse/dmr)
+
 EpiDiverse-DMR Pipeline
 ========================
 
 **EpiDiverse/dmr** is a bioinformatics analysis pipeline for calling differentially methylated positions or regions from non-model plant species.
 
-The workflow processes raw methylation data from bedGraphs resulting from the [EpiDiverse/wgbs](https://github.com/epidiverse/wgbs/) pipeline, which are the grouped for analysis with [bedtools unionbedg](https://github.com/arq5x/bedtools2). Each pairwise comparison between groups is performed with [metilene](https://www.bioinf.uni-leipzig.de/Software/metilene/), and downstream visualisation is carried out with R-packages [ggplot2]() and [gplots]() to produce distribution plots and heatmaps.
+The workflow processes raw methylation data from bedGraphs resulting from the [EpiDiverse/wgbs](https://github.com/epidiverse/wgbs/) pipeline, which are then grouped for analysis with [bedtools unionbedg](https://github.com/arq5x/bedtools2). Each pairwise comparison between groups is performed with [metilene](https://www.bioinf.uni-leipzig.de/Software/metilene/), and downstream visualisation is carried out with R-packages [ggplot2]() and [gplots]() to produce distribution plots and heatmaps.
 
 See the [output documentation](https://github.com/EpiDiverse/dmr/wiki/Pipeline-Output) for more details of the results.
 
@@ -51,4 +55,4 @@ programme under the Marie Skłodowska-Curie grant agreement No 764965
 
 ## Citation
 
-If you use epidiverse/wgbs for your analysis, please cite it using the following doi: <placeholder>
+If you use epidiverse/dmr for your analysis, please cite it using the following doi: <placeholder>
