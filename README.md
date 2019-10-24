@@ -2,6 +2,9 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/epidiverse/dmr.svg)](https://hub.docker.com/r/epidiverse/dmr)
 
+[<img width="200" align="right" src="docs/images/euflagbetter.jpg">](https://ec.europa.eu/programmes/horizon2020/en)
+[<img width="200" align="right" src="docs/images/epidiverse-logo.jpg">](https://epidiverse.eu)
+
 EpiDiverse-DMR Pipeline
 ========================
 
