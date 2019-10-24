@@ -9,7 +9,7 @@ EpiDiverse-DMR Pipeline
 
 The workflow processes raw methylation data from bedGraphs resulting from the [EpiDiverse/wgbs](https://github.com/epidiverse/wgbs/) pipeline, which are then grouped for analysis with [bedtools unionbedg](https://github.com/arq5x/bedtools2). Each pairwise comparison between groups is performed with [metilene](https://www.bioinf.uni-leipzig.de/Software/metilene/), and downstream visualisation is carried out with R-packages [ggplot2]() and [gplots]() to produce distribution plots and heatmaps.
 
-See the [output documentation](https://github.com/EpiDiverse/dmr/wiki/Pipeline-Output) for more details of the results.
+> See the [output documentation](docs/output.md) for more details of the results.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
@@ -31,24 +31,24 @@ iv. Start running your own analysis!
 nextflow run epidiverse/dmr -profile <docker|singularity|conda> --input /path/to/wgbs/dir --samples /path/to/samples.tsv
 ```
 
-See [usage docs](https://github.com/EpiDiverse/dmr/wiki/Pipeline-Usage) for all of the available options when running the pipeline.
+> See the [usage documentation](docs/usage.md) for all of the available options when running the pipeline.
 
 ### Wiki Documentation
 
-The epidiverse/dmr pipeline comes with documentation about the pipeline, [found in the Wiki](https://github.com/EpiDiverse/dmr/wiki):
+The EpiDiverse/dmr pipeline is part of the [EpiDiverse Toolkit](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/overview), a best practice suite of tools intended for the study of [Ecological Plant Epigenetics](https://app.gitbook.com/@epidiverse/s/project/). Links to general guidelines and pipeline-specific documentation can be found below:
 
-1. [Installation](https://github.com/EpiDiverse/dmr/wiki/Installation)
+1. [Installation](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/installation)
 2. Pipeline configuration
-    * [Local installation](https://github.com/EpiDiverse/dmr/wiki/Installation#2-install-the-pipeline)
-    * [Adding your own system config](https://github.com/EpiDiverse/dmr/wiki/Installation#3-pipeline-configuration)
-    * [EpiDiverse infrastructure](https://github.com/EpiDiverse/dmr/wiki/Installation#appendices)
-3. [Running the pipeline](https://github.com/EpiDiverse/dmr/wiki/Pipeline-Usage)
-4. [Output and how to interpret the results](https://github.com/EpiDiverse/dmr/wiki/Pipeline-Output)
-5. [Troubleshooting](https://github.com/EpiDiverse/dmr/wiki/Troubleshooting)
+    * [Local installation](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/installation#2-install-the-pipeline)
+    * [Adding your own system config](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/installation#3-pipeline-configuration)
+    * [EpiDiverse infrastructure](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/installation#appendices)
+3. [Running the pipeline](docs/usage.md)
+4. [Understanding the results](docs/output.md)
+5. [Troubleshooting](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/troubleshooting)
 
 ### Credits
 
-These scripts were originally written for use by the [EpiDiverse International Training Network](https://epidiverse.eu/), by Adam Nunn ([@bio15anu](https://github.com/bio15anu)) and Nilay Can ([@nilaycan](https://github.com/nilaycan)).
+These scripts were originally written for use by the [EpiDiverse European Training Network](https://epidiverse.eu/), by Adam Nunn ([@bio15anu](https://github.com/bio15anu)) and Nilay Can ([@nilaycan](https://github.com/nilaycan)).
 
 This project has received funding from the European Union’s Horizon 2020 research and innovation
 programme under the Marie Skłodowska-Curie grant agreement No 764965
