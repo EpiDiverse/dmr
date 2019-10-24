@@ -30,7 +30,8 @@ nextflow run epidiverse/dmr -profile test,<docker|singularity|conda>
 iv. Start running your own analysis!
 
 ```bash
-nextflow run epidiverse/dmr -profile <docker|singularity|conda> --input /path/to/wgbs/dir --samples /path/to/samples.tsv
+nextflow run epidiverse/dmr -profile <docker|singularity|conda> \
+--input /path/to/wgbs/directory --samples /path/to/samples.tsv
 ```
 
 > See the [usage documentation](docs/usage.md) for all of the available options when running the pipeline.
