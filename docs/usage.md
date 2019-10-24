@@ -30,6 +30,11 @@ This document describes the parameter options used by the pipeline.
     * [`-resume`](#-resume)
     * [`-name`](#-name)
 
+## Workflow
+
+![EpiDiverse/dmr Workflow](images/dmr.png)
+---
+
 ## Running the pipeline
 The main command for running the pipeline is as follows:
 
