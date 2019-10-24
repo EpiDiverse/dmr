@@ -1,3 +1,4 @@
+# EpiDiverse-DMR Output
 This document describes the output produced by the pipeline.
 
 ## Pipeline overview
@@ -8,6 +9,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 * [Visualisation](#visualisation) - distributions and heatmaps
 * [Pipeline Info](#pipeline-info) - reports from nextflow about the pipeline run
 
+### Output Directory Structure
+![Output Directory Structure](images/directory.png)
+
 ## bedtools unionbedg
 The first step of the pipeline is to identify which samples belong to the different groups according the "samples.tsv" file, and produce input files for *each pairwise comparison* between the specified groups by combining the appropriate samples together using [bedtools unionbedg](https://github.com/arq5x/bedtools2).
 
@@ -17,7 +21,7 @@ The first step of the pipeline is to identify which samples belong to the differ
   * There will be one file according to this naming convention for *each pairwise comparison* according to the number of groups that have been identified in the "samples.tsv" file.
   * The number of columns correspond to the total number of samples in the groups, giving the relevant methylation information (proportion) on each row.
 
-Example "groupA_vs_groupB.bed" file:
+Example `groupA_vs_groupB.bed` file:
 ```bash
 chr         pos         groupA_rep1     groupA_rep2     groupB_rep1
 Chr1        109         1.00            0.00            0.57
@@ -45,7 +49,7 @@ DMP/DMR calling is carried out using [metilene](https://www.bioinf.uni-leipzig.d
 * eg. `groupA_vs_groupB/groupA_vs_groupB.0.05.bed`
   * The is file contains the streamlined output from metilene which is filtered according to the parameters set for the pipeline run. This output is used for all downstream analysis and visualisation.
 
-Example "groupA_vs_groupB.0.05.bed" file:
+Example `groupA_vs_groupB.0.05.bed` file:
 ```bash
 #chr        start       end         CpN     meth. diff.     significance    length
 

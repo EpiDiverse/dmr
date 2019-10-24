@@ -1,3 +1,4 @@
+# EpiDiverse-DMR Usage
 This document describes the parameter options used by the pipeline.
 
 * [Running the pipeline](#running-the-pipeline)
