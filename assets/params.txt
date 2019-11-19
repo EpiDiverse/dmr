@@ -1,0 +1,42 @@
+// params.txt
+// usage: nextflow run epidiverse/dmr [OPTIONS] -params-file /path/to/params.txt
+//
+// this example params file can be used for repeatable analyses instead of specifying parameters
+// directly on the command line.
+// 
+// detailed explanation of pipeline parameters can be found with: nextflow run epidiverse/dmr --help
+
+// DEFAULT PARAMETERS
+params {
+
+	// BASIC PARAMS
+	help = false
+	debug = false
+
+	// INPUT / OUTPUT
+	input = "/path/to/input/directory"
+	samples = "/path/to/samples.tsv"
+	output = "/path/to/output/directory"
+
+	// GENERAL PARAMS
+	control = false
+	defiant = false
+	merge = false
+	dmp = false
+
+	// METHYLATION CONTEXT
+	noCpG = false
+	noCHG = false
+	noCHH = false
+
+	// DMR CALLING
+	cov = "5"
+	gap = "146"
+	CpN = "10"
+	diff = "10"
+	sig = "0.05"
+	segSize = "1000"
+	segContext = "CHH"
+	resample = "0.8"
+	bonferroni = false
+}
