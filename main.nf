@@ -28,8 +28,8 @@ if(params.help){
                                           to provide easy-to-read alternatives for complicated sample names.
 
               --output [path/to/output/dir]   A path to a location to write the output results directory, which can be relative
-                                          or absolute. This directory will contain sub-directories for each set of reads analysed
-                                          during the pipeline. [default: dmrs]
+                                          or absolute. This directory will contain sub-directories for each group comparison
+                                          analysed during the pipeline. [default: dmrs]
 
 
          Options: MODIFIERS
