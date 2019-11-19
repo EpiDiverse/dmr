@@ -27,10 +27,9 @@ if(params.help){
                                           --input directory. 2) group names, for grouping samples together. 3) replicate names
                                           to provide easy-to-read alternatives for complicated sample names.
 
-              --output [STR]                  A string that will be used as the name for the output results directory, which
-                                          will be generated in the working directory. This directory will contain
-                                          sub-directories for each set of reads analysed during the pipeline.
-                                          [default: dmrs]
+              --output [path/to/output/dir]   A path to a location to write the output results directory, which can be relative
+                                          or absolute. This directory will contain sub-directories for each set of reads analysed
+                                          during the pipeline. [default: dmrs]
 
 
          Options: MODIFIERS
@@ -117,7 +116,6 @@ file("${params.samples}")
 CpG_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CpG.bedGraph"
 CHG_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CHG.bedGraph"
 CHH_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CHH.bedGraph"
-results_path = "$PWD/${params.output}"
 
 
 // PRINT STANDARD LOGGING INFO
@@ -259,10 +257,10 @@ workflow {
         DMRS(input_channel,samples_channel,combinations)
 
     publish:
-        DMRS.out.bedtools_unionbedg_publish to: "$results_path", mode: 'copy'
-        DMRS.out.metilene_publish to: "$results_path", mode: 'copy'
-        DMRS.out.distributions_publish to: "$results_path", mode: 'move'
-        DMRS.out.heatmaps_publish to: "$results_path", mode: 'copy'
+        DMRS.out.bedtools_unionbedg_publish to: "${params.output}", mode: 'copy'
+        DMRS.out.metilene_publish to: "${params.output}", mode: 'copy'
+        DMRS.out.distributions_publish to: "${params.output}", mode: 'move'
+        DMRS.out.heatmaps_publish to: "${params.output}", mode: 'copy'
 
 }
 

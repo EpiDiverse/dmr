@@ -33,7 +33,6 @@ This document describes the parameter options used by the pipeline.
 ## Workflow
 
 ![EpiDiverse/dmr Workflow](images/dmr.png)
----
 
 ## Running the pipeline
 The main command for running the pipeline is as follows:
@@ -47,7 +46,7 @@ Note that the pipeline will create files in your working directory:
 ```bash
 work/           # Directory containing the nextflow working files
 dmrs/           # Finished results (configurable, see below)
-.nextflow_log   # Log file from Nextflow
+.nextflow.log   # Log file from Nextflow
 .nextflow/      # Nextflow cache and history information
 ```
 
@@ -138,7 +137,7 @@ When called with `nextflow run epidiverse/dmr --help` this will display the para
 There are different ways to provide the required software dependencies for the pipeline. The recommended method is to use the Conda, Docker or Singularity profiles as provided by the pipeline. 
 
 ### `-profile`
-Use this parameter to choose a preset configuration profile. See the [installation documentation]() for more information about profiles.
+Use this parameter to choose a preset configuration profile. See the [installation documentation](https://app.gitbook.com/@epidiverse/s/project/epidiverse-pipelines/installation) for more information about profiles.
 
 Profiles available with the pipeline are:
 

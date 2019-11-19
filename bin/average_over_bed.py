@@ -67,8 +67,8 @@ def main(REGIONS,POSITIONS):
 
 				# establish initial variables
 				length = len(position) - 2
-				totals = [0 for i in range(0,length)]
-				count = 0
+				totals = [(0, 0) for i in range(0,length)]
+				#count = 0
 
 				# print header and skip to next position
 				print("\t".join(position[2:]))
@@ -84,7 +84,8 @@ def main(REGIONS,POSITIONS):
 			if Found and ((current_Chr != Chr) or ((current_Chr == Chr) and (current_Pos > End+1))):
 
 				# print averages for current region
-				averages = [str(format(n/count, '.5f')) for n in totals]
+				#averages = [str(format(n/count, '.5f')) for n in totals]
+				averages = [str(format(n[0]/n[1], '.5f')) if n[1] != 0 else "NA" for n in totals]
 				print("{}".format("\t".join(averages)))
 
 				# move the region ONCE
@@ -92,21 +93,14 @@ def main(REGIONS,POSITIONS):
 				if region is "kill": break
 
 				# reset counts
-				totals = [0 for i in range(0,length)]
-				count = 0
+				totals = [(0, 0) for i in range(0,length)]
 				Found = False
 
 			# 4) On each position, evaluate current position or skip to next
 			if (current_Chr == Chr) and (current_Pos in range(Start, End+1)):
 
-				# skip positions with N/A	
-				if "N/A" in position: continue
-		
-				# we found a position yay! DO STUFF NOW
-				else:
-					totals = [totals[i] + float(position[i+2]) for i in range(0, length)]
-					count += 1
-					Found = True
+				totals = [(totals[i][0],totals[i][1]) if position[i+2] == "." else (totals[i][0]+float(position[i+2]),totals[i][1]+1) for i in range(0, length)]
+				Found = True
 
 			# we already moved the region, so now move position
 			else: continue
