@@ -65,7 +65,7 @@ Chr1        1884168     1884365     13      -0.620385       0.013316        197
 ```
 
 ## Visualisation
-The pipeline will generate heatmaps and density distribution plots for the DMP/DMRs generated for each pairwise comparison using R packages [gplots]() and [ggplot2]().
+The pipeline will generate heatmaps and density distribution plots for the DMP/DMRs generated for each pairwise comparison using R packages [gplots]() and [ggplot2](). **NB:- these will only be generated if DMRs are found within the significance threshold, otherwise Nextflow will report that these processes have 'failed' harmlessly.**
 
 **Output directory: `dmrs/{CpG,CHG,CHH}/visual/`**
 

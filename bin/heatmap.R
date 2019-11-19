@@ -11,7 +11,12 @@ data <- read.table(args[1], header=T, na.strings = "NA", comment.char='')
 
 if(nrow(data) > 0) {
 
-    dims <- 0.25*ncol(data)
+    if (0.25*ncol(data) < 6) {
+        dims <- 6
+    } else {
+        dims <- 0.25*ncol(data)
+    }
+
     pdf(paste(dir,"/",file,"_Heatmap.pdf",sep=""), height=8, width=dims)
 
     heatmap.2(as.matrix(data), na.color = "white", hclustfun=function(x)
