@@ -183,6 +183,17 @@ combinations = samples_channel
     .flatMap()
     .unique()
 
+// handle errors with group prefixes
+combinations
+    .filter { it[0] =~ "^${it[1]}" || it[1] =~ "^${it[0]}" }
+    .count()
+    .subscribe{int c ->
+        if( c > 0 ){
+            error "ERROR: at least one group name is a prefix of another in: ${params.samples}"
+            exit 1
+        }
+    }
+
 // STAGE BEDGRAPH CHANNELS FROM TEST PROFILE
 if ( workflow.profile.tokenize(",").contains("test") ){
 
