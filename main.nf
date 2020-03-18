@@ -113,9 +113,9 @@ file("${params.samples}")
          commaLine += "," }
 
 // DEFINE PATHS
-CpG_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CpG.bedGraph"
-CHG_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CHG.bedGraph"
-CHH_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CHH.bedGraph"
+CpG_path = "${params.input}/CpG/{${commaLine[0..-2]}}.bedGraph"
+CHG_path = "${params.input}/CHG/{${commaLine[0..-2]}}.bedGraph"
+CHH_path = "${params.input}/CHH/{${commaLine[0..-2]}}.bedGraph"
 
 
 // PRINT STANDARD LOGGING INFO
@@ -197,7 +197,7 @@ combinations
 // STAGE BEDGRAPH CHANNELS FROM TEST PROFILE
 if ( workflow.profile.tokenize(",").contains("test") ){
 
-        include check_test_data from './libs/functions.nf' params(CpGPaths: params.CpGPaths, CHGPaths: params.CHGPaths, noCpG: params.noCpG, noCHG: params.noCHG)
+        include check_test_data from './lib/functions.nf' params(CpGPaths: params.CpGPaths, CHGPaths: params.CHGPaths, noCpG: params.noCpG, noCHG: params.noCHG)
         (CpG, CHG, CHH) = check_test_data(params.CpGPaths, params.CHGPaths, params.noCpG, params.noCHG)
 
 } else {
@@ -205,17 +205,17 @@ if ( workflow.profile.tokenize(",").contains("test") ){
     // STAGE BEDGRAPH CHANNELS
     CpG = params.noCpG ? Channel.empty() : Channel
         .fromFilePairs(CpG_path, size: 1)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *_CpG.bedGraph files in dir: ${params.input}\n"}
+        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CpG\n"}
         .map{it.flatten()}
 
     CHG = params.noCHG ? Channel.empty() : Channel
         .fromFilePairs(CHG_path, size: 1)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *_CHG.bedGraph files in dir: ${params.input}\n"}
+        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHG\n"}
         .map{it.flatten()}
 
     CHH = params.noCHH ? Channel.empty() : Channel
         .fromFilePairs(CHH_path, size: 1)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *_CHH.bedGraph files in dir: ${params.input}\n"}
+        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHH\n"}
         .map{it.flatten()}
 }
 
@@ -233,7 +233,7 @@ input_channel = CpG_channel.mix(CHG_channel,CHH_channel)
 ////////////////////
 
 // INCLUDES
-include './libs/dmr.nf' params(params)
+include './lib/dmr.nf' params(params)
 
 // WORKFLOWS
 
@@ -255,6 +255,7 @@ workflow 'DMRS' {
     emit:
         bedtools_unionbedg_publish = bedtools_unionbedg.out[1]
         metilene_publish = metilene.out[1]
+        metilene_link = metilene.out[2]
         distributions_publish = distributions.out
         heatmaps_publish = heatmaps.out
 
@@ -270,6 +271,7 @@ workflow {
     publish:
         DMRS.out.bedtools_unionbedg_publish to: "${params.output}", mode: 'copy'
         DMRS.out.metilene_publish to: "${params.output}", mode: 'copy'
+        DMRS.out.metilene_link to: "${params.output}", mode: 'copyNoFollow'
         DMRS.out.distributions_publish to: "${params.output}", mode: 'move'
         DMRS.out.heatmaps_publish to: "${params.output}", mode: 'copy'
 
