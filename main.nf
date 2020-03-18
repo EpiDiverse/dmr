@@ -204,19 +204,19 @@ if ( workflow.profile.tokenize(",").contains("test") ){
 
     // STAGE BEDGRAPH CHANNELS
     CpG = params.noCpG ? Channel.empty() : Channel
-        .fromFilePairs(CpG_path, size: 1)
+        .fromPath(CpG_path)
         .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CpG\n"}
-        .map{it.flatten()}
+        .map{ tuple(it.baseName, it) }
 
     CHG = params.noCHG ? Channel.empty() : Channel
-        .fromFilePairs(CHG_path, size: 1)
+        .fromPath(CHG_path)
         .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHG\n"}
-        .map{it.flatten()}
+        .map{ tuple(it.baseName, it) }
 
     CHH = params.noCHH ? Channel.empty() : Channel
-        .fromFilePairs(CHH_path, size: 1)
+        .fromPath(CHH_path)
         .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHH\n"}
-        .map{it.flatten()}
+        .map{ tuple(it.baseName, it) }
 }
 
 // ASSIGN GROUP AND REP NAMES TO CHANNELS
