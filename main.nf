@@ -101,7 +101,8 @@ if(params.version){
     exit 0
 }
 
-// PARAMETER CHECKS
+// VALIDATE ALL PARAMETERS
+ParameterChecks.checkParams(params)
 if( params.noCpG && params.noCHG && params.noCHH ){error "ERROR: please specify at least one methylation context for analysis"}
 
 // DEFINE COMMALINE FOR INPUT PATH
@@ -205,17 +206,23 @@ if ( workflow.profile.tokenize(",").contains("test") ){
     // STAGE BEDGRAPH CHANNELS
     CpG = params.noCpG ? Channel.empty() : Channel
         .fromPath(CpG_path)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CpG\n"}
+        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CpG\n\n \
+            -Please check files exist or specify --noCpG\n \
+            -Please check sample names match: ${samples}"}
         .map{ tuple(it.baseName, it) }
 
     CHG = params.noCHG ? Channel.empty() : Channel
         .fromPath(CHG_path)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHG\n"}
+        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHG\n\n \
+            -Please check files exist or specify --noCHG\n \
+            -Please check sample names match: ${samples}"}
         .map{ tuple(it.baseName, it) }
 
     CHH = params.noCHH ? Channel.empty() : Channel
         .fromPath(CHH_path)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHH\n"}
+        .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHH\n\n \
+            -Please check files exist or specify --noCHH\n \
+            -Please check sample names match: ${samples}"}
         .map{ tuple(it.baseName, it) }
 }
 
@@ -297,11 +304,11 @@ workflow.onComplete {
     log.info "         Name         : ${workflow.runName}${workflow.resume ? " (resumed)" : ""}"
     log.info "         Profile      : ${workflow.profile}"
     log.info "         Launch dir   : ${workflow.launchDir}"    
-    log.info "         Work dir     : ${workflow.workDir} ${params.debug ? "" : "(cleared)" }"
+    log.info "         Work dir     : ${workflow.workDir} ${workflow.success && !params.debug ? "(cleared)" : ""}"
     log.info "         Status       : ${workflow.success ? "success" : "failed"}"
     log.info "         Error report : ${workflow.errorReport ?: "-"}"
     log.info ""
 
-    if (params.debug == false && workflow.success) {
+    if (workflow.success && !params.debug) {
         ["bash", "${baseDir}/bin/clean.sh", "${workflow.sessionId}"].execute() }
 }
