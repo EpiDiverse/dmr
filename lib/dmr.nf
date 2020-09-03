@@ -10,11 +10,11 @@ process "preprocessing" {
     maxForks "${params.fork}".toInteger()
 
     input:
-    tuple context, sample, path(bedGraph), group, replicate
+    tuple val(context), val(sample), path(bedGraph), val(group), val(replicate)
     // eg. [CpG, TA_XX_NN_NN_X_YYMMDD_X_1, /path/to/TA_XX_NN_NN_X_YYMMDD_X_1_CpG.bedGraph, group1, rep1]
 
     output:
-    tuple context, sample, path("${group}_${replicate}.bed")
+    tuple val(context), val(sample), path("${group}_${replicate}.bed")
     // eg. [CpG, TA_XX_NN_NN_X_YYMMDD_X_1, /path/to/group1_rep1.bed]
 
     script:
@@ -38,11 +38,11 @@ process "bedtools_unionbedg" {
     publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/input.bed", mode: 'copy', enabled: true
 
     input:
-    tuple context, samples, path(bedGraph), group1, group2
+    tuple val(context), val(samples), path(bedGraph), val(group1), val(group2)
     // eg. [CpG, [group1, group2], [/path/to/group1_rep1.bed,/path/to/group2_rep1.bed], group1, group2]
 
     output:
-    tuple context, path(context), group1, group2
+    tuple val(context), path(context), val(group1), val(group2)
     // eg. [CpG, /path/to/CpG, group1, group2]
     path "${context}/${group1}_vs_${group2}/input.bed"
 
@@ -75,11 +75,11 @@ process "metilene" {
     publishDir "${params.output}", pattern: "${context}/*.bed", mode: 'copyNoFollow', enabled: true
 
     input:
-    tuple context, path("inputs"), group1, group2
+    tuple val(context), path("inputs"), val(group1), val(group2)
     // eg. [CpG, /path/to/inputs, group1, group2]
 
     output:
-    tuple context, path("inputs"), path(context), group1, group2
+    tuple val(context), path("inputs"), path(context), val(group1), val(group2)
     // eg. [CpG, /path/to/inputs, /path/to/CpG, group1, group2]
     path "${context}/${group1}_vs_${group2}/*.{bed,log}"
     path "${context}/*.bed"
@@ -119,7 +119,7 @@ process "distributions" {
     publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/*.{txt,pdf}", mode: 'move', enabled: true
 
     input:
-    tuple context, path("ignores"), path("inputs"), group1, group2
+    tuple val(context), path("ignores"), path("inputs"), val(group1), val(group2)
     // eg. [CpG, /path/to/ignores, /path/to/inputs, group1, group2]
     // bedfile = [chr, start, end, #CpN, meth_diff, q-value, length]
 
@@ -158,7 +158,7 @@ process "heatmaps" {
     publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/*.{avg,pdf}", mode: 'copy', enabled: true
 
     input:
-    tuple context, path("positions"), path("regions"), group1, group2
+    tuple val(context), path("positions"), path("regions"), val(group1), val(group2)
     // eg. [CpG, /path/to/positions, /path/to/regions, group1, group2]
     // positions = /path/to/input/group1_vs_group2.bed from bedtools_unionbedg
     // regions = /path/to/metilene/group1_vs_group2.0.05.bed from metilene
