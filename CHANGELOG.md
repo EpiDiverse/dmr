@@ -2,6 +2,10 @@
 ---
 # Releases
 
+## v1.0 - 
+* Update to Nextflow 20.07.1 syntax
+* Restructure output directories
+
 ---
 # Prereleases
 ## v0.9.1 - 

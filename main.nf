@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 // DSL2 BRANCH
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
 // PRINT HELP AND EXIT
 if(params.help){
@@ -101,7 +101,8 @@ if(params.version){
     exit 0
 }
 
-// PARAMETER CHECKS
+// VALIDATE ALL PARAMETERS
+ParameterChecks.checkParams(params)
 if( params.noCpG && params.noCHG && params.noCHH ){error "ERROR: please specify at least one methylation context for analysis"}
 
 // DEFINE COMMALINE FOR INPUT PATH
@@ -113,9 +114,9 @@ file("${params.samples}")
          commaLine += "," }
 
 // DEFINE PATHS
-CpG_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CpG.bedGraph"
-CHG_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CHG.bedGraph"
-CHH_path = "${params.input}/{${commaLine[0..-2]}}/bedGraph/*_CHH.bedGraph"
+CpG_path = "${params.input}/CpG/{${commaLine[0..-2]}}.bedGraph"
+CHG_path = "${params.input}/CHG/{${commaLine[0..-2]}}.bedGraph"
+CHH_path = "${params.input}/CHH/{${commaLine[0..-2]}}.bedGraph"
 
 
 // PRINT STANDARD LOGGING INFO
@@ -160,7 +161,7 @@ log.info ""
 // STAGE SAMPLES CHANNEL
 samples_channel = Channel
     .from(file("${params.samples}").readLines())
-    .ifEmpty{ exit 1, "ERROR: samples file is missing or invalid. Please remember to use the --samples parameter." }
+    .ifEmpty{ exit 1, "ERROR: samples file is missing. Please remember to use the --samples parameter." }
     .map { line ->
         def field = line.toString().tokenize('\t').take(3)
         return tuple(field[0].replaceAll("\\s",""), field[1].replaceAll("\\s",""), field[2].replaceAll("\\s",""))}
@@ -170,8 +171,17 @@ samples_channel
     .count{it[1] == params.control}
     .subscribe{int c ->
         if( params.control && c == 0 ){
-            error "ERROR: --control parameter does not match with samples in: ${params.samples}"
-            exit 1
+            exit 1, "ERROR: --control parameter does not match with samples in: ${params.samples}"
+            
+        }
+    }
+
+// handle errors with repeated replicates
+samples_channel
+    .map{ it.tail() }
+    .groupTuple()
+    .subscribe{ if( it[1].size() != it[1].unique().size() ){
+            exit 1, "ERROR: group \"${it[0]}\" contains repeated replicate names in: ${params.samples}"
         }
     }
 
@@ -179,33 +189,41 @@ samples_channel
 combinations = samples_channel
     .map{it[1]}
     .collect()
-    .map{[params.control ? tuple(params.control.toString()) : it,it].combinations().findAll{a,b -> a < b}}
+    .map{ [params.control ? tuple(params.control.toString()) : it,it].combinations().findAll{a,b -> a < b} }
     .flatMap()
     .unique()
+
+// handle errors with group prefixes
+combinations
+    .filter { it[0] =~ "^${it[1]}" || it[1] =~ "^${it[0]}" }
+    .count()
+    .subscribe{int c ->
+        if( c > 0 ){
+            exit 1, "ERROR: at least one group name is a prefix of another in: ${params.samples}"
+        }
+    }
 
 // STAGE BEDGRAPH CHANNELS FROM TEST PROFILE
 if ( workflow.profile.tokenize(",").contains("test") ){
 
-        include check_test_data from './libs/functions.nf' params(CpGPaths: params.CpGPaths, CHGPaths: params.CHGPaths, noCpG: params.noCpG, noCHG: params.noCHG)
+        include {check_test_data} from './lib/functions.nf' params(CpGPaths: params.CpGPaths, CHGPaths: params.CHGPaths, noCpG: params.noCpG, noCHG: params.noCHG)
         (CpG, CHG, CHH) = check_test_data(params.CpGPaths, params.CHGPaths, params.noCpG, params.noCHG)
 
 } else {
 
+
     // STAGE BEDGRAPH CHANNELS
     CpG = params.noCpG ? Channel.empty() : Channel
-        .fromFilePairs(CpG_path, size: 1)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *_CpG.bedGraph files in dir: ${params.input}\n"}
-        .map{it.flatten()}
+        .fromPath(CpG_path)
+        .map{ tuple(it.baseName, it) }
 
     CHG = params.noCHG ? Channel.empty() : Channel
-        .fromFilePairs(CHG_path, size: 1)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *_CHG.bedGraph files in dir: ${params.input}\n"}
-        .map{it.flatten()}
+        .fromPath(CHG_path)
+        .map{ tuple(it.baseName, it) }
 
     CHH = params.noCHH ? Channel.empty() : Channel
-        .fromFilePairs(CHH_path, size: 1)
-        .ifEmpty{ exit 1, "ERROR: cannot find valid *_CHH.bedGraph files in dir: ${params.input}\n"}
-        .map{it.flatten()}
+        .fromPath(CHH_path)
+        .map{ tuple(it.baseName, it) }
 }
 
 // ASSIGN GROUP AND REP NAMES TO CHANNELS
@@ -215,6 +233,10 @@ CHH_channel = CHH.combine(samples_channel, by: 0).map{tuple("CHH", *it)}
 
 // STAGE FINAL INPUT CHANNEL
 input_channel = CpG_channel.mix(CHG_channel,CHH_channel)
+            .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/\n\n \
+            -Please check files exist in {CpG,CHG,CHH} directories\n \
+            -Please check --noCpG --noCHG --noCHH parameters\n \
+            -Please check sample names match: ${params.samples}"}
 
 
 ////////////////////
@@ -222,14 +244,14 @@ input_channel = CpG_channel.mix(CHG_channel,CHH_channel)
 ////////////////////
 
 // INCLUDES
-include './libs/dmr.nf' params(params)
+include {preprocessing;bedtools_unionbedg;metilene;distributions;heatmaps} from './lib/dmr.nf' params(params)
 
 // WORKFLOWS
 
 // WGBS workflow - primary pipeline
 workflow 'DMRS' {
 
-    get:
+    take:
         input_channel
         samples_channel
         combinations
@@ -241,12 +263,6 @@ workflow 'DMRS' {
         distributions(metilene.out[0])
         heatmaps(metilene.out[0])
 
-    emit:
-        bedtools_unionbedg_publish = bedtools_unionbedg.out[1]
-        metilene_publish = metilene.out[1]
-        distributions_publish = distributions.out
-        heatmaps_publish = heatmaps.out
-
 }
 
 
@@ -255,12 +271,6 @@ workflow {
 
     main:
         DMRS(input_channel,samples_channel,combinations)
-
-    publish:
-        DMRS.out.bedtools_unionbedg_publish to: "${params.output}", mode: 'copy'
-        DMRS.out.metilene_publish to: "${params.output}", mode: 'copy'
-        DMRS.out.distributions_publish to: "${params.output}", mode: 'move'
-        DMRS.out.heatmaps_publish to: "${params.output}", mode: 'copy'
 
 }
 
@@ -284,11 +294,11 @@ workflow.onComplete {
     log.info "         Name         : ${workflow.runName}${workflow.resume ? " (resumed)" : ""}"
     log.info "         Profile      : ${workflow.profile}"
     log.info "         Launch dir   : ${workflow.launchDir}"    
-    log.info "         Work dir     : ${workflow.workDir} ${params.debug ? "" : "(cleared)" }"
+    log.info "         Work dir     : ${workflow.workDir} ${workflow.success && !params.debug ? "(cleared)" : ""}"
     log.info "         Status       : ${workflow.success ? "success" : "failed"}"
     log.info "         Error report : ${workflow.errorReport ?: "-"}"
     log.info ""
 
-    if (params.debug == false && workflow.success) {
+    if (workflow.success && !params.debug) {
         ["bash", "${baseDir}/bin/clean.sh", "${workflow.sessionId}"].execute() }
 }
