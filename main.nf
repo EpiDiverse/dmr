@@ -211,6 +211,21 @@ if ( workflow.profile.tokenize(",").contains("test") ){
 
 } else {
 
+
+    // STAGE BEDGRAPH CHANNELS
+    CpG = params.noCpG ? Channel.empty() : Channel
+        .fromPath(CpG_path)
+        .map{ tuple(it.baseName, it) }
+
+    CHG = params.noCHG ? Channel.empty() : Channel
+        .fromPath(CHG_path)
+        .map{ tuple(it.baseName, it) }
+
+    CHH = params.noCHH ? Channel.empty() : Channel
+        .fromPath(CHH_path)
+        .map{ tuple(it.baseName, it) }
+
+    /*
     // STAGE BEDGRAPH CHANNELS
     CpG = params.noCpG ? Channel.empty() : Channel
         .fromPath(CpG_path)
@@ -232,6 +247,7 @@ if ( workflow.profile.tokenize(",").contains("test") ){
             -Please check files exist or specify --noCHH\n \
             -Please check sample names match: ${params.samples}"}
         .map{ tuple(it.baseName, it) }
+    */
 }
 
 // ASSIGN GROUP AND REP NAMES TO CHANNELS
@@ -241,6 +257,10 @@ CHH_channel = CHH.combine(samples_channel, by: 0).map{tuple("CHH", *it)}
 
 // STAGE FINAL INPUT CHANNEL
 input_channel = CpG_channel.mix(CHG_channel,CHH_channel)
+            .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/\n\n \
+            -Please check files exist in {CpG,CHG,CHH} directories\n \
+            -Please check --noCpG --noCHG --noCHH parameters\n \
+            -Please check sample names match: ${params.samples}"}
 
 
 ////////////////////
