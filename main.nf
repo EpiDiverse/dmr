@@ -206,7 +206,7 @@ combinations
 // STAGE BEDGRAPH CHANNELS FROM TEST PROFILE
 if ( workflow.profile.tokenize(",").contains("test") ){
 
-        include check_test_data from './lib/functions.nf' params(CpGPaths: params.CpGPaths, CHGPaths: params.CHGPaths, noCpG: params.noCpG, noCHG: params.noCHG)
+        include {check_test_data} from './lib/functions.nf' params(CpGPaths: params.CpGPaths, CHGPaths: params.CHGPaths, noCpG: params.noCpG, noCHG: params.noCHG)
         (CpG, CHG, CHH) = check_test_data(params.CpGPaths, params.CHGPaths, params.noCpG, params.noCHG)
 
 } else {
