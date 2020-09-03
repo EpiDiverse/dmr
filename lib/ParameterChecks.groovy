@@ -10,6 +10,6 @@ class ParameterChecks {
         assert Double.valueOf(params.sig) >= 0.0d && Double.valueOf(params.sig) <= 1.0d, "--sig parameter must be a decimal in the range of 0 and 1!"
         assert Double.valueOf(params.resample) >= 0.0d && Double.valueOf(params.resample) <= 1.0d, "--resample parameter must be a decimal in the range of 0 and 1!"
         assert params.segSize instanceof Integer && params.segSize > 0, "--segSize parameter must be a positive integer!"
-        assert params.fork instanceof Integer && params.fork >= 0, "--fork parameter must be a non-negative integer!"
+        assert params.fork instanceof Integer && (params.fork == -1 || params.fork >= 0), "--fork parameter must be a non-negative integer (or -1 to disable)!"
 	}
 }

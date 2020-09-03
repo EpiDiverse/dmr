@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 // DSL2 BRANCH
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
 // PRINT HELP AND EXIT
 if(params.help){
@@ -161,7 +161,7 @@ log.info ""
 // STAGE SAMPLES CHANNEL
 samples_channel = Channel
     .from(file("${params.samples}").readLines())
-    .ifEmpty{ exit 1, "ERROR: samples file is missing or invalid. Please remember to use the --samples parameter." }
+    .ifEmpty{ exit 1, "ERROR: samples file is missing. Please remember to use the --samples parameter." }
     .map { line ->
         def field = line.toString().tokenize('\t').take(3)
         return tuple(field[0].replaceAll("\\s",""), field[1].replaceAll("\\s",""), field[2].replaceAll("\\s",""))}
@@ -171,8 +171,17 @@ samples_channel
     .count{it[1] == params.control}
     .subscribe{int c ->
         if( params.control && c == 0 ){
-            error "ERROR: --control parameter does not match with samples in: ${params.samples}"
-            exit 1
+            exit 1, "ERROR: --control parameter does not match with samples in: ${params.samples}"
+            
+        }
+    }
+
+// handle errors with repeated replicates
+samples_channel
+    .map{ it.tail() }
+    .groupTuple()
+    .subscribe{ if( it[1].size() != it[1].unique().size() ){
+            exit 1, "ERROR: group \"${it[0]}\" contains repeated replicate names in: ${params.samples}"
         }
     }
 
@@ -180,7 +189,7 @@ samples_channel
 combinations = samples_channel
     .map{it[1]}
     .collect()
-    .map{[params.control ? tuple(params.control.toString()) : it,it].combinations().findAll{a,b -> a < b}}
+    .map{ [params.control ? tuple(params.control.toString()) : it,it].combinations().findAll{a,b -> a < b} }
     .flatMap()
     .unique()
 
@@ -190,8 +199,7 @@ combinations
     .count()
     .subscribe{int c ->
         if( c > 0 ){
-            error "ERROR: at least one group name is a prefix of another in: ${params.samples}"
-            exit 1
+            exit 1, "ERROR: at least one group name is a prefix of another in: ${params.samples}"
         }
     }
 
@@ -208,21 +216,21 @@ if ( workflow.profile.tokenize(",").contains("test") ){
         .fromPath(CpG_path)
         .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CpG\n\n \
             -Please check files exist or specify --noCpG\n \
-            -Please check sample names match: ${samples}"}
+            -Please check sample names match: ${params.samples}"}
         .map{ tuple(it.baseName, it) }
 
     CHG = params.noCHG ? Channel.empty() : Channel
         .fromPath(CHG_path)
         .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHG\n\n \
             -Please check files exist or specify --noCHG\n \
-            -Please check sample names match: ${samples}"}
+            -Please check sample names match: ${params.samples}"}
         .map{ tuple(it.baseName, it) }
 
     CHH = params.noCHH ? Channel.empty() : Channel
         .fromPath(CHH_path)
         .ifEmpty{ exit 1, "ERROR: cannot find valid *.bedGraph files in dir: ${params.input}/CHH\n\n \
             -Please check files exist or specify --noCHH\n \
-            -Please check sample names match: ${samples}"}
+            -Please check sample names match: ${params.samples}"}
         .map{ tuple(it.baseName, it) }
 }
 
@@ -240,14 +248,14 @@ input_channel = CpG_channel.mix(CHG_channel,CHH_channel)
 ////////////////////
 
 // INCLUDES
-include './lib/dmr.nf' params(params)
+include {preprocessing;bedtools_unioinbedg;metilene;distributions;heatmaps} from './lib/dmr.nf' params(params)
 
 // WORKFLOWS
 
 // WGBS workflow - primary pipeline
 workflow 'DMRS' {
 
-    get:
+    take:
         input_channel
         samples_channel
         combinations
@@ -259,13 +267,6 @@ workflow 'DMRS' {
         distributions(metilene.out[0])
         heatmaps(metilene.out[0])
 
-    emit:
-        bedtools_unionbedg_publish = bedtools_unionbedg.out[1]
-        metilene_publish = metilene.out[1]
-        metilene_link = metilene.out[2]
-        distributions_publish = distributions.out
-        heatmaps_publish = heatmaps.out
-
 }
 
 
@@ -274,13 +275,6 @@ workflow {
 
     main:
         DMRS(input_channel,samples_channel,combinations)
-
-    publish:
-        DMRS.out.bedtools_unionbedg_publish to: "${params.output}", mode: 'copy'
-        DMRS.out.metilene_publish to: "${params.output}", mode: 'copy'
-        DMRS.out.metilene_link to: "${params.output}", mode: 'copyNoFollow'
-        DMRS.out.distributions_publish to: "${params.output}", mode: 'move'
-        DMRS.out.heatmaps_publish to: "${params.output}", mode: 'copy'
 
 }
 

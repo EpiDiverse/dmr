@@ -1,15 +1,13 @@
 #!/usr/bin/env nextflow
 
 
-// pipeline variables
-segContext = "${params.segContext}".split(",")
-
-
 // taking input bedGraph files and preprocessing into bed format
 process "preprocessing" {
 
     label "low"
     tag "$context - $sample"
+
+    maxForks "${params.fork}".toInteger()
 
     input:
     tuple context, sample, path(bedGraph), group, replicate
@@ -35,6 +33,9 @@ process "bedtools_unionbedg" {
 
     label "low"
     tag "${context} - ${group1}_vs_${group2}"
+
+    maxForks "${params.fork}".toInteger()
+    publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/input.bed", mode: 'copy', enabled: true
 
     input:
     tuple context, samples, path(bedGraph), group1, group2
@@ -68,6 +69,11 @@ process "metilene" {
     label "mid"
     tag "${context} - ${group1}_vs_${group2}"
 
+    maxForks "${params.fork}".toInteger()
+
+    publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/*.{bed,log}", mode: 'copy', enabled: true
+    publishDir "${params.output}", pattern: "${context}/*.bed", mode: 'copyNoFollow', enabled: true
+
     input:
     tuple context, path("inputs"), group1, group2
     // eg. [CpG, /path/to/inputs, group1, group2]
@@ -79,6 +85,7 @@ process "metilene" {
     path "${context}/*.bed"
 
     script:
+    segContext = "${params.segContext}".split(",")
     """
     mkdir tmp ${context} ${context}/${group1}_vs_${group2}
     bed=inputs/${group1}_vs_${group2}/input.bed
@@ -106,6 +113,10 @@ process "distributions" {
 
     label "mid"
     tag "${context} - ${group1}_vs_${group2}"
+
+    maxForks "${params.fork}".toInteger()
+
+    publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/*.{txt,pdf}", mode: 'move', enabled: true
 
     input:
     tuple context, path("ignores"), path("inputs"), group1, group2
@@ -141,6 +152,10 @@ process "heatmaps" {
 
     label "mid"
     tag "${context} - ${group1}_vs_${group2}"
+
+    maxForks "${params.fork}".toInteger()
+
+    publishDir "${params.output}", pattern: "${context}/${group1}_vs_${group2}/*.{avg,pdf}", mode: 'copy', enabled: true
 
     input:
     tuple context, path("positions"), path("regions"), group1, group2
