@@ -6,8 +6,8 @@ EpiDiverse-DMR Pipeline
 
 [![Nextflow](https://img.shields.io/badge/nextflow-20.07.1-45818e.svg)](https://www.nextflow.io/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-45818e.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/cloud/automated/epidiverse/dmr.svg)](https://hub.docker.com/r/epidiverse/wgbs)
-[![Release](https://img.shields.io/github/v/release/epidiverse/dmr.svg?colorB=45818e)](https://github.com/EpiDiverse/wgbs/releases/latest)
+[![Docker](https://img.shields.io/docker/cloud/automated/epidiverse/dmr.svg)](https://hub.docker.com/r/epidiverse/dmr)
+[![Release](https://img.shields.io/github/v/release/epidiverse/dmr.svg?colorB=45818e)](https://github.com/EpiDiverse/dmr/releases/latest)
 [![Publication](https://img.shields.io/badge/Published-Bioinformatics-45818e.svg?colorB=45818e&style=popout)](https://academic.oup.com/bioinformatics/article-abstract/36/11/3314/5809142)
 [![Twitter](https://img.shields.io/twitter/follow/epidiverse?style=social)](https://twitter.com/intent/follow?screen_name=epidiverse)
 
@@ -35,7 +35,7 @@ NXF_VER=20.07.1 nextflow run epidiverse/dmr -profile test,<docker|singularity|co
 
 ```bash
 NXF_VER=20.07.1 nextflow run epidiverse/dmr -profile <docker|singularity|conda> \
---input /path/to/wgbs/directory --samples /path/to/samples.tsv
+--input /path/to/wgbs/bam --samples /path/to/samples.tsv
 ```
 
 > See the [usage documentation](docs/usage.md) for all of the available options when running the pipeline.
