@@ -248,7 +248,7 @@ input_channel = CpG_channel.mix(CHG_channel,CHH_channel)
 ////////////////////
 
 // INCLUDES
-include {preprocessing;bedtools_unioinbedg;metilene;distributions;heatmaps} from './lib/dmr.nf' params(params)
+include {preprocessing;bedtools_unionbedg;metilene;distributions;heatmaps} from './lib/dmr.nf' params(params)
 
 // WORKFLOWS
 
