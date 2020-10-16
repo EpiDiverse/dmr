@@ -5,6 +5,7 @@
 process "preprocessing" {
 
     label "low"
+    label "finish"
     tag "$context - $sample"
 
     maxForks "${params.fork}".toInteger()
@@ -32,6 +33,7 @@ process "preprocessing" {
 process "bedtools_unionbedg" {
 
     label "low"
+    label "finish"
     tag "${context} - ${group1}_vs_${group2}"
 
     maxForks "${params.fork}".toInteger()
@@ -67,6 +69,7 @@ process "bedtools_unionbedg" {
 process "metilene" {
 
     label "mid"
+    label "finish"
     tag "${context} - ${group1}_vs_${group2}"
 
     maxForks "${params.fork}".toInteger()
@@ -112,6 +115,7 @@ process "metilene" {
 process "distributions" {
 
     label "mid"
+    label "ignore"
     tag "${context} - ${group1}_vs_${group2}"
 
     maxForks "${params.fork}".toInteger()
@@ -151,6 +155,7 @@ process "distributions" {
 process "heatmaps" {
 
     label "mid"
+    label "ignore"
     tag "${context} - ${group1}_vs_${group2}"
 
     maxForks "${params.fork}".toInteger()
